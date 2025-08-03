@@ -1,0 +1,51 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Data
+data/
+*.db
+*.sqlite
+
+# Documentation (optional - remove if you want to include docs)
+# *.md
+# docs/
+
+# Test files
+test_*.py
+*_test.py
+simple_test.py
+
+# Deployment files (keep these)
+# Procfile
+# runtime.txt
+# railway.json
+# render.yaml
+# lovable.json 

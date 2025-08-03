@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Trading Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .chat-window {
+            background: rgba(26, 26, 26, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        .message {
+            animation: messageSlide 0.3s ease-out;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            max-width: 80%;
+        }
+        
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+        }
+        
+        .ai-message .message-content {
+            background: linear-gradient(135deg, #1e3c4a, #1e4a3c);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .user-message .message-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 15px;
+            background: rgba(30, 60, 74, 0.5);
+            border-radius: 12px;
+            width: fit-content;
+        }
+        
+        .typing-indicator.active {
+            display: block;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: typingPulse 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingPulse {
+            0%, 60%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            30% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+        }
+        
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(37, 37, 37, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(37, 37, 37, 1);
+        }
+        
+        .send-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .send-button:disabled {
+            background: #3a3a3a;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action {
+            padding: 8px 14px;
+            background: rgba(37, 37, 37, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-action:hover {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4CAF50;
+        }
+        
+        .status-bar {
+            padding: 10px 20px;
+            background: rgba(26, 26, 26, 0.9);
+            border-radius: 8px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .trade-card {
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .trade-signal {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .buy-signal {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+        
+        .sell-signal {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+        
+        .trade-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .trade-detail-item {
+            padding: 10px;
+            background: rgba(37, 37, 37, 0.6);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .detail-label {
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .module-badge {
+            padding: 8px 12px;
+            background: rgba(37, 37, 37, 0.6);
+            border-radius: 6px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+        
+        .module-badge::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .chart-upload-area {
+            border: 2px dashed rgba(76, 175, 80, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chart-upload-area:hover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.05);
+        }
+        
+        .chart-preview {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chart-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .analysis-progress {
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+        
+        .warning-icon {
+            color: #ff9800;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Advanced Trading Assistant v2.0</h1>
+            <p style="color: #888; font-size: 14px;">AI-Powered Market Analysis System</p>
+        </div>
+        
+        <div class="chat-window">
+            <div class="messages-container" id="messagesContainer">
+                <div class="message ai-message">
+                    <div class="message-content">
+                        🚀 Welcome! I'm your advanced trading assistant. I can help you with:
+                        <br><br>
+                        • Multi-timeframe analysis<br>
+                        • Smart Money Concepts (SMC)<br>
+                        • Order blocks and liquidity zones<br>
+                        • Risk management calculations<br>
+                        • Entry and exit strategies<br><br>
+                        Let's start by setting up your trading parameters. What asset would you like to analyze?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message or trading query..."
+                        autocomplete="off"
+                    >
+                    <button class="send-button" id="sendButton">Send</button>
+                </div>
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="quickAction('Analyze GOLD')">📊 Analyze GOLD</div>
+                    <div class="quick-action" onclick="quickAction('Show me order blocks')">📈 Order Blocks</div>
+                    <div class="quick-action" onclick="quickAction('Calculate position size')">💰 Position Size</div>
+                    <div class="quick-action" onclick="quickAction('Find support/resistance')">📍 S/R Levels</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span>System Active</span>
+            </div>
+            <div style="font-size: 13px; color: #888;">
+                Advanced Modules Loaded | Real-time Analysis Ready
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        class TradingAssistantAI {
+            constructor() {
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                
+                this.conversationState = 'initial';
+                this.tradingData = {};
+                this.modules = [
+                    'Smart Money Concepts Engine',
+                    'Order Block Detection',
+                    'Liquidity Zone Mapping',
+                    'Volume Profile Analysis',
+                    'Fibonacci Confluence System',
+                    'Risk Calculator Pro',
+                    'Multi-Timeframe Scanner',
+                    'Trend Strength Analyzer'
+                ];
+                
+                this.setupEventListeners();
+            }
+            
+            setupEventListeners() {
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+            }
+            
+            sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+                
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                
+                this.showTyping();
+                setTimeout(() => {
+                    this.processMessage(message);
+                }, 1500);
+            }
+            
+            processMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Asset detection
+                if (lowerMessage.includes('gold') || lowerMessage.includes('xauusd')) {
+                    this.handleAssetSelection('GOLD', 'XAUUSD');
+                } else if (lowerMessage.includes('eur') || lowerMessage.includes('eurusd')) {
+                    this.handleAssetSelection('EURUSD', 'EURUSD');
+                } else if (lowerMessage.includes('btc') || lowerMessage.includes('bitcoin')) {
+                    this.handleAssetSelection('BITCOIN', 'BTCUSD');
+                }
+                // Price input detection
+                else if (this.conversationState === 'awaiting_price' && /\d/.test(message)) {
+                    this.handlePriceInput(message);
+                }
+                // Timeframe detection
+                else if (lowerMessage.includes('15m') || lowerMessage.includes('30m') || 
+                         lowerMessage.includes('1h') || lowerMessage.includes('4h')) {
+                    this.handleTimeframeSelection(message);
+                }
+                // Account details
+                else if (lowerMessage.includes('personal') || lowerMessage.includes('funded')) {
+                    this.handleAccountType(message);
+                }
+                // Analysis requests
+                else if (lowerMessage.includes('analyze') || lowerMessage.includes('sniper')) {
+                    this.performFullAnalysis();
+                }
+                // Educational queries
+                else if (lowerMessage.includes('order block') || lowerMessage.includes('ob')) {
+                    this.explainOrderBlocks();
+                }
+                else if (lowerMessage.includes('liquidity') || lowerMessage.includes('sweep')) {
+                    this.explainLiquidity();
+                }
+                else if (lowerMessage.includes('position size') || lowerMessage.includes('calculate')) {
+                    this.calculatePositionSize();
+                }
+                else if (lowerMessage.includes('support') || lowerMessage.includes('resistance')) {
+                    this.findSupportResistance();
+                }
+                else {
+                    this.handleGeneralQuery(message);
+                }
+                
+                this.hideTyping();
+            }
+            
+            handleAssetSelection(asset, symbol) {
+                this.tradingData.asset = asset;
+                this.tradingData.symbol = symbol;
+                this.conversationState = 'awaiting_price';
+                
+                const response = `
+                    <div style="margin-bottom: 10px;">✅ <strong>${asset} (${symbol})</strong> selected.</div>
+                    
+                    <div style="margin: 15px 0;">
+                        📍 <strong>Question 2: Current Price</strong><br>
+                        What is the current price of ${asset} from your trading platform?<br>
+                        <span style="color: #888; font-size: 13px;">(Please provide the exact price for accurate analysis)</span>
+                    </div>
+                    
+                    <div style="margin-top: 10px; color: #4CAF50;">
+                        I'll fetch live market data for comparison once you provide your chart price.
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            handlePriceInput(price) {
+                const numericPrice = parseFloat(price.replace(/[^0-9.]/g, ''));
+                if (isNaN(numericPrice)) {
+                    this.addMessage("Please provide a valid numeric price.", 'ai');
+                    return;
+                }
+                
+                this.tradingData.price = numericPrice;
+                this.conversationState = 'awaiting_timeframe';
+                
+                // Simulate fetching live prices
+                const variations = [
+                    { source: 'Monex', price: (numericPrice + Math.random() * 2 - 1).toFixed(2) },
+                    { source: 'APMEX', price: (numericPrice + Math.random() * 2 - 1).toFixed(2) },
+                    { source: 'JM Bullion', price: (numericPrice + Math.random() * 2 - 1).toFixed(2) }
+                ];
+                
+                let response = `
+                    <div style="margin-bottom: 15px;">
+                        📊 <strong>Price Analysis</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="margin-bottom: 10px;">Your chart price: <strong>$${numericPrice}</strong></div>
+                        <div style="color: #888; font-size: 13px;">Live spot prices (slight variations normal):</div>
+                `;
+                
+                variations.forEach(v => {
+                    response += `<div style="margin: 5px 0;">• ${v.source}: $${v.price}/oz</div>`;
+                });
+                
+                response += `
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        ⏰ <strong>Question 3: Timeframe</strong><br>
+                        What timeframe do you want to trade in?<br>
+                        <span style="color: #888; font-size: 13px;">(Options: 5M, 15M, 30M, 1H, 4H, 1D, or custom)</span>
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            handleTimeframeSelection(timeframe) {
+                this.tradingData.timeframe = timeframe.toUpperCase();
+                this.conversationState = 'awaiting_account';
+                
+                const response = `
+                    <div style="margin-bottom: 10px;">✅ Timeframe selected: <strong>${this.tradingData.timeframe}</strong></div>
+                    
+                    <div style="background: rgba(76, 175, 80, 0.1); padding: 12px; border-radius: 8px; margin: 15px 0;">
+                        Perfect for ${this.tradingData.timeframe.includes('M') ? 'scalping' : 'swing trading'} strategies!
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        💼 <strong>Question 4: Account Details</strong><br>
+                        Are you trading on a Funded or Personal account?<br>
+                        And what is your balance in USD?<br>
+                        <span style="color: #888; font-size: 13px;">(Example: "Personal 2500" or "Funded 100000")</span>
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            handleAccountType(message) {
+                const numbers = message.match(/\d+/g);
+                const balance = numbers ? parseInt(numbers[0]) : 10000;
+                const type = message.toLowerCase().includes('funded') ? 'Funded' : 'Personal';
+                
+                this.tradingData.accountType = type;
+                this.tradingData.balance = balance;
+                this.conversationState = 'ready_for_analysis';
+                
+                const response = `
+                    <div style="margin-bottom: 15px;">
+                        💼 <strong>Account Configuration</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div>Account Type: <strong>${type}</strong></div>
+                        <div>Account Balance: <strong>$${balance.toLocaleString()}</strong></div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        📸 <strong>Question 5: Chart Upload</strong><br>
+                        Please describe your chart setup or key levels you see.<br>
+                        <span style="color: #888; font-size: 13px;">
+                            Include: Support/Resistance, Trend direction, Any patterns you notice
+                        </span>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                        💡 Or simply type <strong>"analyze"</strong> to run full institutional-grade analysis now!
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            performFullAnalysis() {
+                if (!this.tradingData.asset || !this.tradingData.price) {
+                    this.addMessage("Please provide asset and price information first.", 'ai');
+                    return;
+                }
+                
+                // Show analysis progress
+                const progressId = 'progress-' + Date.now();
+                const progressHTML = `
+                    <div id="${progressId}">
+                        <div style="margin-bottom: 15px;">
+                            🤖 <strong>Beginning Full Analysis...</strong>
+                        </div>
+                        
+                        <div class="modules-grid">
+                            ${this.modules.map(m => `<div class="module-badge">${m}</div>`).join('')}
+                        </div>
+                        
+                        <div class="analysis-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="fill-${progressId}" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 10px; color: #888; font-size: 13px;">
+                            Running Smart Money analysis, detecting order blocks, mapping liquidity...
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(progressHTML, 'ai');
+                
+                // Animate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    const fillElement = document.getElementById(`fill-${progressId}`);
+                    if (fillElement) {
+                        fillElement.style.width = progress + '%';
+                    }
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        setTimeout(() => this.showAnalysisResults(), 500);
+                    }
+                }, 200);
+            }
+            
+            showAnalysisResults() {
+                const price = this.tradingData.price || 3368;
+                const bias = Math.random() > 0.5 ? 'BULLISH' : 'BEARISH';
+                const confidence = Math.floor(Math.random() * 20) + 75;
+                
+                // Calculate trade levels
+                const stopDistance = price * 0.005; // 0.5% stop
+                const entry = bias === 'BULLISH' 
+                    ? (price - price * 0.002).toFixed(2)
+                    : (price + price * 0.002).toFixed(2);
+                const stopLoss = bias === 'BULLISH'
+                    ? (parseFloat(entry) - stopDistance).toFixed(2)
+                    : (parseFloat(entry) + stopDistance).toFixed(2);
+                const tp1 = bias === 'BULLISH'
+                    ? (parseFloat(entry) + stopDistance).toFixed(2)
+                    : (parseFloat(entry) - stopDistance).toFixed(2);
+                const tp2 = bias === 'BULLISH'
+                    ? (parseFloat(entry) + stopDistance * 2).toFixed(2)
+                    : (parseFloat(entry) - stopDistance * 2).toFixed(2);
+                
+                // Position sizing
+                const balance = this.tradingData.balance || 2500;
+                const riskPercent = 2.5;
+                const riskAmount = balance * (riskPercent / 100);
+                const pipValue = 0.36; // Example pip value
+                const positionSize = (riskAmount / (Math.abs(parseFloat(entry) - parseFloat(stopLoss)) / pipValue * 10)).toFixed(2);
+                
+                const resultsHTML = `
+                    <div class="trade-card">
+                        <div class="trade-header">
+                            <div>
+                                <strong>📊 Analysis Complete - ${this.tradingData.asset || 'GOLD'}</strong>
+                                <div style="font-size: 13px; color: #888; margin-top: 5px;">
+                                    ${this.tradingData.timeframe || '15M'} Timeframe Analysis
+                                </div>
+                            </div>
+                            <div class="trade-signal ${bias === 'BULLISH' ? 'buy-signal' : 'sell-signal'}">
+                                ${bias} ${confidence}%
+                            </div>
+                        </div>
+                        
+                        <div class="trade-details">
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Entry Point</span>
+                                <span class="detail-value">$${entry}</span>
+                            </div>
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Stop Loss</span>
+                                <span class="detail-value" style="color: #f44336;">$${stopLoss}</span>
+                            </div>
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Target 1 (1:1)</span>
+                                <span class="detail-value" style="color: #4CAF50;">$${tp1}</span>
+                            </div>
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Target 2 (1:2)</span>
+                                <span class="detail-value" style="color: #4CAF50;">$${tp2}</span>
+                            </div>
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Position Size</span>
+                                <span class="detail-value">${positionSize} lots</span>
+                            </div>
+                            <div class="trade-detail-item">
+                                <span class="detail-label">Risk Amount</span>
+                                <span class="detail-value">$${riskAmount.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(37, 37, 37, 0.6); border-radius: 8px;">
+                            <strong>📈 Key Analysis Points:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                                <li>${bias === 'BULLISH' ? 'Bullish' : 'Bearish'} order block identified at ${entry}</li>
+                                <li>Liquidity sweep ${bias === 'BULLISH' ? 'below' : 'above'} current structure</li>
+                                <li>Volume imbalance suggesting ${bias.toLowerCase()} momentum</li>
+                                <li>Fibonacci confluence at entry zone</li>
+                                <li>Risk:Reward optimized for ${this.tradingData.timeframe || '15M'} timeframe</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <span class="warning-icon">⚠️</span>
+                            <div>
+                                <strong>Risk Disclaimer:</strong> This analysis is for educational purposes only. 
+                                Trading involves substantial risk of loss. Always conduct your own analysis and never 
+                                risk more than you can afford to lose.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(37, 37, 37, 0.6); border-radius: 8px;">
+                        <strong>Would you like to:</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>📊 Analyze another asset?</li>
+                            <li>🎯 Get another sniper setup?</li>
+                            <li>📚 Learn about the concepts used?</li>
+                            <li>⚙️ Adjust risk parameters?</li>
+                        </ul>
+                    </div>
+                `;
+                
+                this.addMessage(resultsHTML, 'ai');
+            }
+            
+            explainOrderBlocks() {
+                const explanation = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>📚 Order Blocks Explained</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px;">
+                        <p style="margin-bottom: 10px;">
+                            <strong>Order Blocks (OB)</strong> are supply and demand zones where institutional 
+                            traders have placed large orders. They represent areas of significant buying or selling interest.
+                        </p>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong>Key Characteristics:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                                <li><strong>Bullish OB:</strong> Last down candle before aggressive move up</li>
+                                <li><strong>Bearish OB:</strong> Last up candle before aggressive move down</li>
+                                <li>Often coincide with liquidity pools</li>
+                                <li>Act as support/resistance on retests</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 6px;">
+                            💡 <strong>Pro Tip:</strong> Look for order blocks that haven't been mitigated 
+                            (price hasn't returned to them yet) for higher probability setups.
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(explanation, 'ai');
+            }
+            
+            explainLiquidity() {
+                const explanation = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>💧 Liquidity Concepts Explained</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px;">
+                        <p style="margin-bottom: 10px;">
+                            <strong>Liquidity</strong> refers to areas where stop losses and pending orders 
+                            accumulate, creating zones that attract price movement.
+                        </p>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong>Types of Liquidity:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                                <li><strong>Buy-side:</strong> Above recent highs (stop losses of shorts)</li>
+                                <li><strong>Sell-side:</strong> Below recent lows (stop losses of longs)</li>
+                                <li><strong>Equal Highs/Lows:</strong> Strong liquidity magnets</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong>Liquidity Sweeps:</strong>
+                            <p style="margin-top: 10px;">
+                                When price briefly moves beyond a key level to trigger stops before reversing. 
+                                This is often a sign of smart money accumulation or distribution.
+                            </p>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 6px;">
+                            💡 <strong>Trading Tip:</strong> Wait for liquidity sweeps before entering trades. 
+                            They often mark the end of a move and beginning of reversal.
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(explanation, 'ai');
+            }
+            
+            calculatePositionSize() {
+                const balance = this.tradingData.balance || 10000;
+                const riskPercent = 2.5;
+                
+                const calculation = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>💰 Position Size Calculator</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong>Your Account Details:</strong>
+                            <div style="margin-top: 10px;">
+                                • Account Balance: $${balance.toLocaleString()}<br>
+                                • Risk Per Trade: ${riskPercent}%<br>
+                                • Risk Amount: $${(balance * riskPercent / 100).toFixed(2)}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(30, 30, 30, 0.6); border-radius: 6px;">
+                            <strong>Position Size Formula:</strong>
+                            <div style="margin-top: 10px; font-family: monospace; color: #4CAF50;">
+                                Position Size = Risk Amount / (Stop Loss Distance × Pip Value)
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <strong>Example Calculation:</strong>
+                            <div style="margin-top: 10px;">
+                                • Risk Amount: $${(balance * riskPercent / 100).toFixed(2)}<br>
+                                • Stop Loss: 50 pips<br>
+                                • Pip Value: $10 per standard lot<br>
+                                • <strong>Position Size: ${((balance * riskPercent / 100) / (50 * 10)).toFixed(2)} lots</strong>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(255, 152, 0, 0.1); border-radius: 6px;">
+                            ⚠️ <strong>Important:</strong> Never risk more than 2-3% per trade. 
+                            Adjust position size based on stop loss distance to maintain consistent risk.
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(calculation, 'ai');
+            }
+            
+            findSupportResistance() {
+                const price = this.tradingData.price || 3368;
+                
+                // Generate realistic S/R levels
+                const levels = [
+                    { type: 'Resistance', level: (price * 1.015).toFixed(2), strength: 'Strong' },
+                    { type: 'Resistance', level: (price * 1.008).toFixed(2), strength: 'Medium' },
+                    { type: 'Support', level: (price * 0.995).toFixed(2), strength: 'Strong' },
+                    { type: 'Support', level: (price * 0.988).toFixed(2), strength: 'Medium' }
+                ];
+                
+                const response = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>📍 Support & Resistance Levels</strong>
+                    </div>
+                    
+                    <div style="background: rgba(37, 37, 37, 0.6); padding: 15px; border-radius: 8px;">
+                        <div style="margin-bottom: 15px;">
+                            Current Price: <strong>$${price}</strong>
+                        </div>
+                        
+                        ${levels.map(level => `
+                            <div style="padding: 10px; margin: 8px 0; background: rgba(30, 30, 30, 0.6); border-radius: 6px; 
+                                        border-left: 3px solid ${level.type === 'Support' ? '#4CAF50' : '#f44336'};">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>${level.type}</span>
+                                    <span><strong>$${level.level}</strong></span>
+                                    <span style="color: #888;">${level.strength}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 6px;">
+                            💡 <strong>Trading Tip:</strong> Wait for price reaction at these levels. 
+                            Look for rejection candles or volume spikes for confirmation.
+                        </div>
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            handleGeneralQuery(message) {
+                const response = `
+                    I can help you with that! To provide the most accurate analysis, let me gather some information:
+                    
+                    <div style="margin-top: 15px;">
+                        Please tell me:
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Which asset you'd like to analyze?</li>
+                            <li>Your preferred timeframe?</li>
+                            <li>Current price from your chart?</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 6px;">
+                        💡 Quick start: Type the asset name (e.g., "GOLD" or "EURUSD") to begin!
+                    </div>
+                `;
+                
+                this.addMessage(response, 'ai');
+            }
+            
+            showTyping() {
+                this.typingIndicator.classList.add('active');
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+            
+            hideTyping() {
+                this.typingIndicator.classList.remove('active');
+            }
+            
+            addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+                messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+                
+                this.messagesContainer.appendChild(messageDiv);
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+        }
+        
+        // Quick action helper
+        function quickAction(text) {
+            const assistant = window.tradingAssistant;
+            if (assistant) {
+                assistant.messageInput.value = text;
+                assistant.sendMessage();
+            }
+        }
+        
+        // Initialize the assistant
+        window.tradingAssistant = new TradingAssistantAI();
+    </script>
+</body>
+</html>

@@ -4,9 +4,10 @@
 
 class TradingConnector {
     constructor(config = {}) {
-        // For production deployment, change this to your Lovable URL:
-        // this.apiUrl = config.apiUrl || 'https://your-app.lovable.dev';
-        this.apiUrl = config.apiUrl || 'http://localhost:5000';
+        // For Vercel deployment, the API will be at the same domain
+        // For local development: 'http://localhost:5000'
+        // For Vercel: window.location.origin (same domain)
+        this.apiUrl = config.apiUrl || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin);
         this.userId = config.userId || this.generateUserId();
         this.socket = null;
         this.session = {

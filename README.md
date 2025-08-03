@@ -4,7 +4,7 @@ A comprehensive AI-powered trading assistant that combines advanced market analy
 
 ## 🚀 Live Demo
 
-[Deployed on Lovable.dev](https://your-app.lovable.dev) - Coming Soon!
+[Deployed on Vercel](https://trading-ai-am1r-codes.vercel.app) - Coming Soon!
 
 ## ✨ Features
 
@@ -22,7 +22,7 @@ A comprehensive AI-powered trading assistant that combines advanced market analy
 - **Frontend**: HTML5, CSS3, JavaScript
 - **AI**: OpenAI GPT-4, Anthropic Claude
 - **Data**: Yahoo Finance, Technical Analysis
-- **Deployment**: Lovable.dev
+- **Deployment**: Vercel
 
 ## 🚀 Quick Start
 
@@ -30,8 +30,8 @@ A comprehensive AI-powered trading assistant that combines advanced market analy
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/trading-ai.git
-   cd trading-ai
+   git clone https://github.com/Am1r-codes/Trading_ai.git
+   cd Trading_ai
    ```
 
 2. **Install dependencies**:
@@ -59,12 +59,12 @@ A comprehensive AI-powered trading assistant that combines advanced market analy
 
 ## 🌐 Deployment
 
-### Lovable.dev (Recommended)
+### Vercel (Current)
 
 1. **Fork this repository**
-2. **Go to**: https://lovable.dev/
+2. **Go to**: https://vercel.com/
 3. **Connect your GitHub account**
-4. **Create new project** and select this repository
+4. **Import the repository**: `Am1r-codes/Trading_ai`
 5. **Add environment variables**:
    ```
    OPENAI_API_KEY=your-openai-key
@@ -74,11 +74,11 @@ A comprehensive AI-powered trading assistant that combines advanced market analy
    ```
 6. **Deploy!**
 
-### Other Platforms
+### Alternative Platforms
 
-- **Railway**: Use `railway.json`
-- **Render**: Use `render.yaml`
-- **Heroku**: Use `Procfile`
+- **Railway**: Better for Flask backends with WebSockets
+- **Render**: Good for Python applications
+- **Heroku**: Classic choice for full-stack apps
 
 ## 📊 Usage
 
@@ -131,18 +131,21 @@ MAX_WEEKLY_LOSS=1500
 ## 📁 Project Structure
 
 ```
-trading_ai/
+Trading_ai/
 ├── backend/
 │   └── trading_assistant_backend.py
 ├── frontend/
 │   ├── index.html
 │   └── connector.js
+├── api/
+│   └── index.py
 ├── data/
 ├── logs/
 ├── run.py
 ├── requirements.txt
 ├── env.example
 ├── start.bat
+├── vercel.json
 └── README.md
 ```
 
